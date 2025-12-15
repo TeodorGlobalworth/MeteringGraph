@@ -18,5 +18,6 @@ COPY . .
 # Expose Flask port
 EXPOSE 5067
 
-# Run the application
-CMD ["python", "run.py"]
+# Run with Gunicorn (production server)
+# 4 workers, 2 threads each = 8 concurrent requests per container
+CMD ["gunicorn", "--bind", "0.0.0.0:5067", "--workers", "4", "--threads", "2", "run:app"]
