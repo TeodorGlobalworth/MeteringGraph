@@ -1,0 +1,102 @@
+<!-- Edit Node Modal -->
+<div class="modal fade" id="editNodeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editNodeModalTitle">Edit Node</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editNodeForm">
+                    <!-- Node Type Info (read-only) -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Node Type</label>
+                            <input type="text" class="form-control" id="editNodeType" readonly disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Utility Type</label>
+                            <input type="text" class="form-control" id="editNodeUtilityType" readonly disabled>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editNodeName" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="editNodeName" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editNodeDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editNodeDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <!-- Meter-specific fields -->
+                    <div id="editMeterFields" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="editNodeSerial" class="form-label">Serial Number</label>
+                                <input type="text" class="form-control" id="editNodeSerial">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editNodeSubtype" class="form-label">Subtype</label>
+                                <select class="form-select" id="editNodeSubtype">
+                                    <option value="">-- Select --</option>
+                                    <option value="Main">Main</option>
+                                    <option value="Submeter">Submeter</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Consumer-specific fields -->
+                    <div id="editConsumerFields" style="display: none;">
+                        <div class="mb-3">
+                            <label for="editNodeCategory" class="form-label">Category</label>
+                            <select class="form-select" id="editNodeCategory">
+                                <option value="">-- Select Category --</option>
+                                <!-- Populated dynamically by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Distribution-specific fields -->
+                    <div id="editDistributionFields" style="display: none;">
+                        <div class="mb-3">
+                            <label for="editNodeDistSubtype" class="form-label">Distribution Type</label>
+                            <select class="form-select" id="editNodeDistSubtype">
+                                <option value="">-- Select --</option>
+                                <option value="Main Panel">Main Panel</option>
+                                <option value="Sub Panel">Sub Panel</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="editNodeLocation" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="editNodeLocation">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editNodeInstallDate" class="form-label">Installation Date</label>
+                            <input type="date" class="form-control" id="editNodeInstallDate">
+                        </div>
+                    </div>
+                    
+                    <!-- Created/Updated info -->
+                    <div class="row mb-3 text-muted small">
+                        <div class="col-md-6">
+                            <i class="bi bi-calendar-plus"></i> Created: <span id="editNodeCreated">-</span>
+                        </div>
+                        <div class="col-md-6">
+                            <i class="bi bi-calendar-check"></i> Updated: <span id="editNodeUpdated">-</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="editNodeSaveBtn" onclick="submitEditNode()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>

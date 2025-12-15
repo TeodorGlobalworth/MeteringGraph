@@ -1,0 +1,94 @@
+<!-- Add Node Modal -->
+<div class="modal fade" id="addNodeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Node</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="parentNodeSelect" class="form-label">Parent Node *</label>
+                    <select class="form-select" id="parentNodeSelect" required>
+                        <option value="">Loading...</option>
+                    </select>
+                    <small class="text-muted">Select where to attach this node</small>
+                </div>
+                
+                <form id="addNodeForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nodeType" class="form-label">Node Type *</label>
+                            <select class="form-select" id="nodeType" required>
+                                <option value="">Select type...</option>
+                                <option value="Meter">Meter</option>
+                                <option value="Distribution">Distribution</option>
+                                <option value="Consumer">Consumer</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="nodeUtilityType" class="form-label">Utility Type *</label>
+                            <select class="form-select" id="nodeUtilityType" required>
+                                <option value="electricity">Electricity</option>
+                                <option value="water">Water</option>
+                                <option value="heating">Heating</option>
+                            </select>
+                            <small class="text-muted">For Consumers, this is the default utility</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6" id="subtypeGroup" style="display: none;">
+                            <label for="nodeSubtype" class="form-label">Subtype</label>
+                            <select class="form-select" id="nodeSubtype">
+                                <option value="">Select...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6" id="categoryGroup" style="display: none;">
+                            <label for="nodeCategory" class="form-label">Category</label>
+                            <select class="form-select" id="nodeCategory">
+                                <option value="">Select...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="nodeName" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="nodeName" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="nodeDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="nodeDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="optional-fields">
+                        <h6 class="mb-3">Optional Information</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="nodeSerial" class="form-label">Serial Number</label>
+                                <input type="text" class="form-control" id="nodeSerial">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="nodeLocation" class="form-label">Location</label>
+                                <input type="text" class="form-control" id="nodeLocation">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="nodeInstallDate" class="form-label">Installation Date</label>
+                            <input type="date" class="form-control" id="nodeInstallDate">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddNode()">Add Node</button>
+            </div>
+        </div>
+    </div>
+</div>

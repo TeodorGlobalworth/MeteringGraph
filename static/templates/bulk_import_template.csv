@@ -1,0 +1,95 @@
+# ============================================================================
+# BUILDING METERING SYSTEM - BULK IMPORT TEMPLATE
+# ============================================================================
+# 
+# INSTRUKCJA UZYCIA / HOW TO USE:
+# 1. Usun wszystkie linie zaczynajace sie od # (komentarze)
+# 2. Zachowaj wiersz naglowkowy (pierwsza linia po komentarzach)
+# 3. Dodaj swoje dane w kolejnych wierszach
+# 4. Zapisz plik jako CSV (kodowanie UTF-8)
+# 5. Zaimportuj plik w aplikacji przez "Bulk Import"
+#
+# WAZNE ZASADY / IMPORTANT RULES:
+# - Wezly rodzicielskie (parent) musza byc zdefiniowane PRZED dziecmi
+# - Wartosc parent_name musi DOKLADNIE odpowiadac nazwie istniejacego wezla
+# - Wielkosc liter ma znaczenie w polach type i utility_type
+#
+# ============================================================================
+# OPIS KOLUMN / COLUMN DESCRIPTIONS:
+# ============================================================================
+#
+# name (WYMAGANE / REQUIRED)
+#   Unikalna nazwa wezla w projekcie.
+#   Przyklady: "Main Meter Building A", "Office Floor 2 Panel", "LED Lighting"
+#
+# type (WYMAGANE / REQUIRED)
+#   Typ wezla. Dozwolone wartosci:
+#   - Meter        : Licznik (glowny lub podlicznik)
+#   - Distribution : Rozdzielnia elektryczna/punkt dystrybucji
+#   - Consumer     : Odbiornik koncowy (urzadzenie, system)
+#
+# subtype_or_category (WYMAGANE / REQUIRED)
+#   Podtyp lub kategoria zalezna od typu wezla:
+#   
+#   Dla type=Meter:
+#     - Main      : Licznik glowny (przylacze)
+#     - Submeter  : Podlicznik
+#   
+#   Dla type=Distribution:
+#     - Main Panel : Rozdzielnia glowna
+#     - Sub Panel  : Rozdzielnia pomocnicza/pietrowa
+#   
+#   Dla type=Consumer:
+#     - Lighting    : Oswietlenie
+#     - HVAC        : Klimatyzacja/ogrzewanie
+#     - Elevator    : Windy
+#     - Pumps       : Pompy
+#     - Ventilation : Wentylacja
+#     - Outlets     : Gniazdka
+#     - Equipment   : Urzadzenia specjalistyczne
+#     - Other       : Inne
+#
+# utility_type (OPCJONALNE / OPTIONAL)
+#   Typ medium/nosnika energii. Dozwolone wartosci:
+#   - electricity : Energia elektryczna (domyslnie)
+#   - water       : Woda
+#   - heating     : Cieplo/ogrzewanie
+#   - gas         : Gaz
+#   Jesli puste - przyjmuje wartosc domyslna projektu
+#
+# parent_name (OPCJONALNE / OPTIONAL)
+#   Nazwa wezla nadrzednego do ktorego ma byc podlaczony.
+#   - Zostaw puste dla wezlow glownych (root)
+#   - Musi dokladnie odpowiadac nazwie istniejacego wezla
+#   - Wezel rodzic musi byc zdefiniowany WCZESNIEJ w pliku
+#
+# description (OPCJONALNE / OPTIONAL)
+#   Opis wezla, dodatkowe informacje.
+#   Przyklad: "Licznik glowny budynku A, wejscie od ul. Glownej"
+#
+# serial_number (OPCJONALNE / OPTIONAL)
+#   Numer seryjny urzadzenia/licznika.
+#   Przyklad: "SN-2024-00123", "ABB-MT174-001"
+#
+# location (OPCJONALNE / OPTIONAL)
+#   Fizyczna lokalizacja wezla.
+#   Przyklad: "Parter, pomieszczenie techniczne", "Pietro 3, korytarz"
+#
+# installation_date (OPCJONALNE / OPTIONAL)
+#   Data instalacji w formacie RRRR-MM-DD.
+#   Przyklad: "2024-01-15", "2023-06-30"
+#
+# ============================================================================
+# PRZYKLADOWE DANE / SAMPLE DATA (usun przed importem wlasnych danych):
+# ============================================================================
+name,type,subtype_or_category,utility_type,parent_name,description,serial_number,location,installation_date
+Main Electricity Meter,Meter,Main,electricity,,Glowny licznik energii elektrycznej budynku,EL-2024-001,Parter - pomieszczenie techniczne,2024-01-15
+Main Water Meter,Meter,Main,water,,Glowny wodomierz budynku,WM-2024-001,Parter - pomieszczenie techniczne,2024-01-15
+Floor 1 Submeter,Meter,Submeter,electricity,Main Electricity Meter,Podlicznik pietra 1,EL-2024-002,Pietro 1 - rozdzielnia,2024-02-01
+Floor 2 Submeter,Meter,Submeter,electricity,Main Electricity Meter,Podlicznik pietra 2,EL-2024-003,Pietro 2 - rozdzielnia,2024-02-01
+Distribution Panel F1,Distribution,Main Panel,electricity,Floor 1 Submeter,Glowna rozdzielnia pietra 1,DP-F1-001,Pietro 1 - korytarz glowny,2024-02-15
+Distribution Panel F2,Distribution,Main Panel,electricity,Floor 2 Submeter,Glowna rozdzielnia pietra 2,DP-F2-001,Pietro 2 - korytarz glowny,2024-02-15
+Office Lighting F1,Consumer,Lighting,electricity,Distribution Panel F1,Oswietlenie biur pietro 1,,,2024-03-01
+HVAC System F1,Consumer,HVAC,electricity,Distribution Panel F1,System klimatyzacji pietro 1,HVAC-001,Dach,2024-03-15
+Office Lighting F2,Consumer,Lighting,electricity,Distribution Panel F2,Oswietlenie biur pietro 2,,,2024-03-01
+Server Room,Consumer,Equipment,electricity,Distribution Panel F2,Serwerownia,,,2024-04-01

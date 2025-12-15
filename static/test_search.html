@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html>
+<head><title>Test</title></head>
+<body>
+<input type="text" id="searchInput" placeholder="Search...">
+<div id="autocompleteDropdown"></div>
+<script>
+const PROJECT_ID = 1;
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+function initializeSearch() {
+    console.log('initializeSearch called');
+    const searchInput = document.getElementById('searchInput');
+    const dropdown = document.getElementById('autocompleteDropdown');
+    console.log('searchInput:', searchInput);
+    searchInput.addEventListener('input', debounce(function() {
+        console.log('Input event fired, value:', this.value);
+    }, 300));
+}
+document.addEventListener('DOMContentLoaded', initializeSearch);
+</script>
+</body>
+</html>

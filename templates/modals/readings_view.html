@@ -1,0 +1,84 @@
+<!-- Readings View Modal -->
+<div class="modal fade" id="readingsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Readings: <span id="readingsNodeName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Chart -->
+                <div class="chart-container mb-4">
+                    <canvas id="readingsChart"></canvas>
+                </div>
+                
+                <!-- Add Reading Form -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <strong>Add New Reading</strong>
+                    </div>
+                    <div class="card-body">
+                        <form id="readingsViewForm" class="row g-3">
+                            <input type="hidden" id="readingsViewNodeId">
+                            
+                            <div class="col-md-4">
+                                <label for="readingsViewTimestamp" class="form-label">Timestamp</label>
+                                <input type="datetime-local" class="form-control" id="readingsViewTimestamp">
+                                <small class="text-muted">Leave empty for now</small>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="readingsViewValue" class="form-label">Value *</label>
+                                <input type="number" step="0.01" class="form-control" id="readingsViewValue" 
+                                       required placeholder="0.00" min="0">
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="readingsViewUnit" class="form-label">Unit *</label>
+                                <select class="form-select" id="readingsViewUnit" required>
+                                    <option value="">-- Select Unit --</option>
+                                    <option value="kWh">kWh</option>
+                                    <option value="m³">m³</option>
+                                    <option value="MJ">MJ</option>
+                                    <option value="kW">kW</option>
+                                    <option value="L">L</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-primary w-100" onclick="submitAddReading()">
+                                    <i class="bi bi-plus-circle"></i> Add
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Readings Table -->
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Value</th>
+                                <th>Unit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="readingsTableBody">
+                            <tr>
+                                <td colspan="3" class="text-center">
+                                    <div class="spinner-border spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,591 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WTT - Building Metering System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/main.css">
+    
+    
+<!-- Custom styles loaded from main.css -->
+
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-diagram-3"></i> Metering System
+            </a>
+            
+<div class="navbar-nav">
+    <span class="navbar-text me-3">
+        WTT
+        <span class="badge bg-warning">
+            electricity
+        </span>
+    </span>
+</div>
+<div class="navbar-nav ms-auto">
+    <button class="btn btn-sm btn-outline-light me-2" onclick="exportCurrentProject()">
+        <i class="bi bi-download"></i> Export
+    </button>
+    <a href="/" class="btn btn-sm btn-outline-light">
+        <i class="bi bi-arrow-left"></i> Back to Projects
+    </a>
+</div>
+
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="">
+        
+<div class="split-view">
+    <!-- Tree Panel (Left) - Desktop / Tab on Mobile -->
+    <div class="tree-panel" id="treePanel">
+        <!-- Search Bar -->
+        <div class="search-container mb-3">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control" id="searchInput" placeholder="Search nodes...">
+            </div>
+            <div id="autocompleteDropdown" class="autocomplete-dropdown" style="display: none;"></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <h6 class="mb-2">Filters</h6>
+            
+            <!-- Utility Type Filter -->
+            <div class="mb-3">
+                <strong class="small">Utility:</strong>
+                <select class="form-select form-select-sm" id="utilityFilter">
+                    <option value="all">All Utilities</option>
+                    <option value="electricity">Electricity</option>
+                    <option value="water">Water</option>
+                    <option value="heating">Heating</option>
+                </select>
+            </div>
+            
+            <div class="mb-2">
+                <strong class="small">Node Types:</strong>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input filter-checkbox" type="checkbox" id="filterMeter" value="Meter" checked>
+                    <label class="form-check-label small" for="filterMeter">Meters</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input filter-checkbox" type="checkbox" id="filterDistribution" value="Distribution" checked>
+                    <label class="form-check-label small" for="filterDistribution">Distribution</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input filter-checkbox" type="checkbox" id="filterConsumer" value="Consumer" checked>
+                    <label class="form-check-label small" for="filterConsumer">Consumers</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb" id="breadcrumb">
+                <li class="breadcrumb-item active">Root</li>
+            </ol>
+        </nav>
+
+        <!-- Tree View -->
+        <ul class="tree-view" id="treeView">
+            <!-- Tree will be populated here -->
+        </ul>
+    </div>
+
+    <!-- Graph Panel (Right) - Desktop / Tab on Mobile -->
+    <div class="graph-panel">
+        <!-- Toolbar -->
+        <div class="graph-toolbar">
+            <button class="btn btn-sm btn-outline-primary" onclick="resetGraphView()" title="Reset View">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-primary" onclick="fitGraph()" title="Fit to Screen">
+                <i class="bi bi-fullscreen"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-primary" onclick="zoomIn()" title="Zoom In">
+                <i class="bi bi-zoom-in"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-primary" onclick="zoomOut()" title="Zoom Out">
+                <i class="bi bi-zoom-out"></i>
+            </button>
+            <div class="ms-auto">
+                <button class="btn btn-sm btn-primary" onclick="openAddNodeModal(selectedNodeId, null)">
+                    <i class="bi bi-plus-circle"></i> Add Node
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#bulkImportModal">
+                    <i class="bi bi-upload"></i> Bulk Import
+                </button>
+            </div>
+        </div>
+
+        <!-- Cytoscape Canvas -->
+        <div id="cy"></div>
+        
+        <!-- Custom Context Menu -->
+        <div id="customContextMenu" class="custom-context-menu">
+            <div class="context-menu-item" id="contextExpand">
+                <i class="bi bi-arrows-expand"></i> Expand Neighborhood
+            </div>
+            <div class="context-menu-item" id="contextAddChild">
+                <i class="bi bi-plus-circle"></i> Add Child Node
+            </div>
+            <div class="context-menu-item" id="contextConnect">
+                <i class="bi bi-arrow-right-circle"></i> Connect to Node...
+            </div>
+            <div class="context-menu-item" id="contextEdit">
+                <i class="bi bi-pencil"></i> Edit Node
+            </div>
+            <div class="context-menu-item" id="contextReadings">
+                <i class="bi bi-graph-up"></i> View Readings
+            </div>
+            <div class="context-menu-item danger" id="contextDelete">
+                <i class="bi bi-trash"></i> Delete Node
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Add Node Modal -->
+<div class="modal fade" id="addNodeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Node</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="parentNodeSelect" class="form-label">Parent Node *</label>
+                    <select class="form-select" id="parentNodeSelect" required>
+                        <option value="">Loading...</option>
+                    </select>
+                    <small class="text-muted">Select where to attach this node</small>
+                </div>
+                
+                <form id="addNodeForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nodeType" class="form-label">Node Type *</label>
+                            <select class="form-select" id="nodeType" required>
+                                <option value="">Select type...</option>
+                                <option value="Meter">Meter</option>
+                                <option value="Distribution">Distribution</option>
+                                <option value="Consumer">Consumer</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="nodeUtilityType" class="form-label">Utility Type *</label>
+                            <select class="form-select" id="nodeUtilityType" required>
+                                <option value="electricity">Electricity</option>
+                                <option value="water">Water</option>
+                                <option value="heating">Heating</option>
+                            </select>
+                            <small class="text-muted">For Consumers, this is the default utility</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6" id="subtypeGroup" style="display: none;">
+                            <label for="nodeSubtype" class="form-label">Subtype</label>
+                            <select class="form-select" id="nodeSubtype">
+                                <option value="">Select...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6" id="categoryGroup" style="display: none;">
+                            <label for="nodeCategory" class="form-label">Category</label>
+                            <select class="form-select" id="nodeCategory">
+                                <option value="">Select...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="nodeName" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="nodeName" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="nodeDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="nodeDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="optional-fields">
+                        <h6 class="mb-3">Optional Information</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="nodeSerial" class="form-label">Serial Number</label>
+                                <input type="text" class="form-control" id="nodeSerial">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="nodeLocation" class="form-label">Location</label>
+                                <input type="text" class="form-control" id="nodeLocation">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="nodeInstallDate" class="form-label">Installation Date</label>
+                            <input type="date" class="form-control" id="nodeInstallDate">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddNode()">Add Node</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Edit Node Modal -->
+<div class="modal fade" id="editNodeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Node</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editNodeForm">
+                    <div class="mb-3">
+                        <label for="editNodeName" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="editNodeName" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editNodeDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editNodeDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="editNodeSerial" class="form-label">Serial Number</label>
+                            <input type="text" class="form-control" id="editNodeSerial">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editNodeLocation" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="editNodeLocation">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editNodeInstallDate" class="form-label">Installation Date</label>
+                        <input type="date" class="form-control" id="editNodeInstallDate">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditNode()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Add Connection Modal -->
+<div class="modal fade" id="addConnectionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Connection</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small">This feature allows you to create custom connections between nodes.</p>
+                <form id="addConnectionForm">
+                    <div class="mb-3">
+                        <label class="form-label">From Node</label>
+                        <input type="text" class="form-control" id="connectionFromNode" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">To Node</label>
+                        <input type="text" class="form-control" id="connectionToNode" placeholder="Search and select node...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Connection Type (optional)</label>
+                        <input type="text" class="form-control" id="connectionType" placeholder="e.g., backup, alternative">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary">Create Connection</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Add Reading Modal -->
+<div class="modal fade" id="addReadingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Reading</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addReadingForm">
+                    <input type="hidden" id="readingNodeId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Node</label>
+                        <input type="text" class="form-control" id="readingNodeName" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="readingTimestamp" class="form-label">Timestamp</label>
+                        <input type="datetime-local" class="form-control" id="readingTimestamp">
+                        <small class="form-text text-muted">Leave empty for current time</small>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="readingValue" class="form-label">Value *</label>
+                            <input type="number" step="0.01" class="form-control" id="readingValue" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="readingUnit" class="form-label">Unit *</label>
+                            <select class="form-select" id="readingUnit" required>
+                                <option value="kWh">kWh (Kilowatt-hour)</option>
+                                <option value="m³">m³ (Cubic meter)</option>
+                                <option value="MJ">MJ (Megajoule)</option>
+                                <option value="kW">kW (Kilowatt)</option>
+                                <option value="L">L (Liter)</option>
+                                <option value="custom">Custom...</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddReading()">Add Reading</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Bulk Import Modal -->
+<div class="modal fade" id="bulkImportModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-upload"></i> Bulk Import Nodes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Pobierz plik szablonu CSV z pełną instrukcją:</strong>
+                    <a href="/static/templates/bulk_import_template.csv" download="bulk_import_template.csv" class="alert-link ms-2">
+                        <i class="bi bi-download"></i> Download Template
+                    </a>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <strong><i class="bi bi-table"></i> Format CSV</strong>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="text-primary">Kolumny wymagane:</h6>
+                        <ul class="small mb-3">
+                            <li><code>name</code> - Unikalna nazwa węzła</li>
+                            <li><code>type</code> - Typ: <span class="badge bg-secondary">Meter</span> <span class="badge bg-secondary">Distribution</span> <span class="badge bg-secondary">Consumer</span></li>
+                            <li><code>subtype_or_category</code> - Podtyp lub kategoria (zależnie od typu)</li>
+                        </ul>
+                        
+                        <h6 class="text-primary">Kolumny opcjonalne:</h6>
+                        <ul class="small mb-0">
+                            <li><code>utility_type</code> - Typ medium: <span class="badge bg-info">electricity</span> <span class="badge bg-info">water</span> <span class="badge bg-info">heating</span> <span class="badge bg-info">gas</span></li>
+                            <li><code>parent_name</code> - Nazwa węzła nadrzędnego</li>
+                            <li><code>description</code> - Opis</li>
+                            <li><code>serial_number</code> - Numer seryjny</li>
+                            <li><code>location</code> - Lokalizacja</li>
+                            <li><code>installation_date</code> - Data instalacji (YYYY-MM-DD)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="bulkImportFile" class="form-label"><strong>Wybierz plik CSV:</strong></label>
+                    <input type="file" class="form-control" id="bulkImportFile" accept=".csv" required>
+                    <div class="form-text">Akceptowane pliki: .csv (kodowanie UTF-8)</div>
+                </div>
+                
+                <div class="alert alert-warning mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Ważne:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Węzły rodzicielskie (<code>parent_name</code>) muszą być zdefiniowane <strong>przed</strong> węzłami dzieci</li>
+                        <li>Nazwa <code>parent_name</code> musi dokładnie odpowiadać istniejącemu węzłowi</li>
+                        <li>Plik template zawiera komentarze (linie #) - zostaną automatycznie zignorowane</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitBulkImport()">
+                    <i class="bi bi-upload"></i> Import
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Readings View Modal -->
+<div class="modal fade" id="readingsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Readings: <span id="readingsNodeName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Chart -->
+                <div class="chart-container mb-4">
+                    <canvas id="readingsChart"></canvas>
+                </div>
+                
+                <!-- Add Reading Form -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <strong>Add New Reading</strong>
+                    </div>
+                    <div class="card-body">
+                        <form id="readingsViewForm" class="row g-3">
+                            <input type="hidden" id="readingsViewNodeId">
+                            
+                            <div class="col-md-4">
+                                <label for="readingsViewTimestamp" class="form-label">Timestamp</label>
+                                <input type="datetime-local" class="form-control" id="readingsViewTimestamp">
+                                <small class="text-muted">Leave empty for now</small>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="readingsViewValue" class="form-label">Value *</label>
+                                <input type="number" step="0.01" class="form-control" id="readingsViewValue" 
+                                       required placeholder="0.00" min="0">
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="readingsViewUnit" class="form-label">Unit *</label>
+                                <select class="form-select" id="readingsViewUnit" required>
+                                    <option value="">-- Select Unit --</option>
+                                    <option value="kWh">kWh</option>
+                                    <option value="m³">m³</option>
+                                    <option value="MJ">MJ</option>
+                                    <option value="kW">kW</option>
+                                    <option value="L">L</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-primary w-100" onclick="submitAddReading()">
+                                    <i class="bi bi-plus-circle"></i> Add
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Readings Table -->
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Value</th>
+                                <th>Unit</th>
+                            </tr>
+                        </thead>
+                        <tbody id="readingsTableBody">
+                            <tr>
+                                <td colspan="3" class="text-center">
+                                    <div class="spinner-border spinner-border-sm" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </main>
+
+    <!-- Toast Container for Notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="/static/js/utils.js"></script>
+    
+    
+<script>
+// Global variables - must be defined before other scripts
+const PROJECT_ID = 1;
+const PROJECT_NAME = "WTT";
+const UTILITY_TYPE = "electricity";
+</script>
+
+<!-- Cytoscape.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
+
+<!-- Chart.js for readings -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Custom JS -->
+<script src="/static/js/tree.js"></script>
+<script src="/static/js/graph.js"></script>
+<script src="/static/js/modals.js"></script>
+
+<script>
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTreeView();
+    initializeGraph();
+    initializeSearch();
+    initializeFilters();
+});
+
+async function exportCurrentProject() {
+    try {
+        const response = await fetch(`/api/projects/${PROJECT_ID}/export`);
+        const data = await response.json();
+        downloadJSON(data, `${PROJECT_NAME}_${new Date().toISOString().split('T')[0]}.json`);
+        showToast('Project exported successfully', 'success');
+    } catch (error) {
+        showToast('Error exporting project: ' + error.message, 'danger');
+    }
+}
+</script>
+
+</body>
+</html>

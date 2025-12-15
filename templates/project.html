@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }} - MeterGraph{% endblock %}
+
+{% block navbar %}
+<div class="navbar-nav">
+    <span class="navbar-text me-2">
+        <i class="bi bi-building"></i> {{ project.name }}
+        <span class="badge bg-warning"><i class="bi bi-lightning-charge"></i></span>
+        <span class="badge bg-primary"><i class="bi bi-droplet"></i></span>
+        <span class="badge bg-danger"><i class="bi bi-thermometer-half"></i></span>
+    </span>
+</div>
+
+<div class="navbar-nav ms-auto d-flex flex-row gap-1 align-items-center">
+    <button class="btn btn-sm btn-outline-light" onclick="resetGraphView()" title="Reset View">
+        <i class="bi bi-arrow-clockwise"></i>
+    </button>
+    <button class="btn btn-sm btn-outline-light" onclick="fitGraph()" title="Fit to Screen">
+        <i class="bi bi-fullscreen"></i>
+    </button>
+    <button class="btn btn-sm btn-outline-light" onclick="zoomIn()" title="Zoom In">
+        <i class="bi bi-zoom-in"></i>
+    </button>
+    <button class="btn btn-sm btn-outline-light" onclick="zoomOut()" title="Zoom Out">
+        <i class="bi bi-zoom-out"></i>
+    </button>
+    <span class="navbar-divider mx-2"></span>
+    <button class="btn btn-sm btn-primary" onclick="openAddNodeModal(selectedNodeId, null)">
+        <i class="bi bi-plus-circle"></i> Add Node
+    </button>
+    <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#bulkImportModal">
+        <i class="bi bi-upload"></i> Import
+    </button>
+    <button class="btn btn-sm btn-outline-light" onclick="exportCurrentProject()">
+        <i class="bi bi-download"></i> Export
+    </button>
+    <span class="navbar-divider mx-2"></span>
+    <a href="/" class="btn btn-sm btn-outline-light">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block extra_css %}
+<!-- Custom styles loaded from main.css -->
+{% endblock %}
+
+{% block content %}
+<div class="split-view">
+    <!-- Tree Panel (Left) - Desktop / Tab on Mobile -->
+    <div class="tree-panel" id="treePanel">
+        <!-- Search Bar -->
+        <div class="search-container mb-3">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control" id="searchInput" placeholder="Search nodes...">
+            </div>
+            <div id="autocompleteDropdown" class="autocomplete-dropdown" style="display: none;"></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-section">
+            <h6 class="mb-2">Filters</h6>
+            
+            <!-- Utility Type Filter -->
+            <div class="mb-3">
+                <strong class="small">Utility:</strong>
+                <select class="form-select form-select-sm" id="utilityFilter">
+                    <option value="all">All Utilities</option>
+                    <option value="electricity">Electricity</option>
+                    <option value="water">Water</option>
+                    <option value="heating">Heating</option>
+                </select>
+            </div>
+            
+            <div class="mb-2">
+                <strong class="small">Node Types:</strong>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input filter-checkbox" type="checkbox" id="filterMeter" value="Meter" checked>
+                    <label class="form-check-label small" for="filterMeter">Meters</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input filter-checkbox" type="checkbox" id="filterDistribution" value="Distribution" checked>
+                    <label class="form-check-label small" for="filterDistribution">Distribution</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input filter-checkbox" type="checkbox" id="filterConsumer" value="Consumer" checked>
+                    <label class="form-check-label small" for="filterConsumer">Consumers</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consumer Category Legend -->
+        <div class="legend-section mt-3">
+            <h6 class="mb-2">Consumer Categories</h6>
+            <div class="legend-grid" id="categoryLegend">
+                <!-- Populated dynamically by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb" id="breadcrumb">
+                <li class="breadcrumb-item active">Root</li>
+            </ol>
+        </nav>
+
+        <!-- Tree View -->
+        <ul class="tree-view" id="treeView">
+            <!-- Tree will be populated here -->
+        </ul>
+    </div>
+
+    <!-- Sidebar Toggle Button (Outside tree-panel for visibility when collapsed) -->
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+        <i class="bi bi-chevron-left" id="sidebarToggleIcon"></i>
+    </button>
+
+    <!-- Graph Panel (Right) - Desktop / Tab on Mobile -->
+    <div class="graph-panel">
+        <!-- Cytoscape Canvas -->
+        <div id="cy"></div>
+        
+        <!-- Custom Context Menu -->
+        <div id="customContextMenu" class="custom-context-menu">
+            <div class="context-menu-item" id="contextExpand">
+                <i class="bi bi-arrows-expand"></i> Expand Neighborhood
+            </div>
+            <div class="context-menu-item" id="contextViewDetails">
+                <i class="bi bi-eye"></i> View Details
+            </div>
+            <div class="context-menu-item" id="contextAddChild">
+                <i class="bi bi-plus-circle"></i> Add Child Node
+            </div>
+            <div class="context-menu-item" id="contextConnect">
+                <i class="bi bi-arrow-right-circle"></i> Connect to Node...
+            </div>
+            <div class="context-menu-item" id="contextEdit">
+                <i class="bi bi-pencil"></i> Edit Node
+            </div>
+            <div class="context-menu-item" id="contextReadings">
+                <i class="bi bi-graph-up"></i> View Readings
+            </div>
+            <div class="context-menu-item danger" id="contextDelete">
+                <i class="bi bi-trash"></i> Delete Node
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+{% include 'modals/add_node.html' %}
+{% include 'modals/edit_node.html' %}
+{% include 'modals/add_connection.html' %}
+{% include 'modals/add_reading.html' %}
+{% include 'modals/bulk_import.html' %}
+{% include 'modals/readings_view.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Global variables - must be defined before other scripts
+const PROJECT_ID = {{ project.id }};
+const PROJECT_NAME = "{{ project.name }}";
+const UTILITY_TYPE = "{{ project.utility_type }}";
+</script>
+
+<!-- Cytoscape.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
+
+<!-- Chart.js for readings -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- Custom JS -->
+<script src="{{ url_for('static', filename='js/tree.js') }}"></script>
+<script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+<script src="{{ url_for('static', filename='js/modals.js') }}"></script>
+
+<script>
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeTreeView();
+    initializeGraph();
+    initializeSearch();
+    initializeFilters();
+    
+    // Initialize sidebar toggle position
+    updateTogglePosition();
+    
+    // Update toggle position on window resize
+    window.addEventListener('resize', updateTogglePosition);
+});
+
+async function exportCurrentProject() {
+    try {
+        const response = await fetch(`/api/projects/${PROJECT_ID}/export`);
+        const data = await response.json();
+        downloadJSON(data, `${PROJECT_NAME}_${new Date().toISOString().split('T')[0]}.json`);
+        showToast('Project exported successfully', 'success');
+    } catch (error) {
+        showToast('Error exporting project: ' + error.message, 'danger');
+    }
+}
+</script>
+{% endblock %}

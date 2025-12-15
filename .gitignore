@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.env
+.venv
+*.log
+.vscode/
+.idea/
+neo4j_data/
+postgres_data/
+*.pyc
+.DS_Store

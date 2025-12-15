@@ -1,0 +1,49 @@
+<!-- Add Reading Modal -->
+<div class="modal fade" id="addReadingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Reading</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addReadingForm">
+                    <input type="hidden" id="readingNodeId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Node</label>
+                        <input type="text" class="form-control" id="readingNodeName" readonly>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="readingTimestamp" class="form-label">Timestamp</label>
+                        <input type="datetime-local" class="form-control" id="readingTimestamp">
+                        <small class="form-text text-muted">Leave empty for current time</small>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="readingValue" class="form-label">Value *</label>
+                            <input type="number" step="0.01" class="form-control" id="readingValue" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="readingUnit" class="form-label">Unit *</label>
+                            <select class="form-select" id="readingUnit" required>
+                                <option value="kWh">kWh (Kilowatt-hour)</option>
+                                <option value="m³">m³ (Cubic meter)</option>
+                                <option value="MJ">MJ (Megajoule)</option>
+                                <option value="kW">kW (Kilowatt)</option>
+                                <option value="L">L (Liter)</option>
+                                <option value="custom">Custom...</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddReading()">Add Reading</button>
+            </div>
+        </div>
+    </div>
+</div>

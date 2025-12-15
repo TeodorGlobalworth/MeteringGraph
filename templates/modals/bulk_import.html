@@ -1,0 +1,68 @@
+<!-- Bulk Import Modal -->
+<div class="modal fade" id="bulkImportModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-upload"></i> Bulk Import Nodes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Pobierz plik szablonu CSV z pełną instrukcją:</strong>
+                    <a href="/static/templates/bulk_import_template.csv" download="bulk_import_template.csv" class="alert-link ms-2">
+                        <i class="bi bi-download"></i> Download Template
+                    </a>
+                </div>
+                
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <strong><i class="bi bi-table"></i> Format CSV</strong>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="text-primary">Kolumny wymagane:</h6>
+                        <ul class="small mb-3">
+                            <li><code>name</code> - Unikalna nazwa węzła</li>
+                            <li><code>type</code> - Typ: <span class="badge bg-secondary">Meter</span> <span class="badge bg-secondary">Distribution</span> <span class="badge bg-secondary">Consumer</span></li>
+                            <li><code>subtype_or_category</code> - Podtyp lub kategoria (zależnie od typu)</li>
+                        </ul>
+                        
+                        <h6 class="text-primary">Kolumny opcjonalne:</h6>
+                        <ul class="small mb-0">
+                            <li><code>utility_type</code> - Typ medium: <span class="badge bg-info">electricity</span> <span class="badge bg-info">water</span> <span class="badge bg-info">heating</span> <span class="badge bg-info">gas</span></li>
+                            <li><code>parent_name</code> - Nazwa węzła nadrzędnego</li>
+                            <li><code>description</code> - Opis</li>
+                            <li><code>serial_number</code> - Numer seryjny</li>
+                            <li><code>location</code> - Lokalizacja</li>
+                            <li><code>installation_date</code> - Data instalacji (YYYY-MM-DD)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="bulkImportFile" class="form-label"><strong>Wybierz plik CSV:</strong></label>
+                    <input type="file" class="form-control" id="bulkImportFile" accept=".csv" required>
+                    <div class="form-text">Akceptowane pliki: .csv (kodowanie UTF-8)</div>
+                </div>
+                
+                <div class="alert alert-warning mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Ważne:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Węzły rodzicielskie (<code>parent_name</code>) muszą być zdefiniowane <strong>przed</strong> węzłami dzieci</li>
+                        <li>Nazwa <code>parent_name</code> musi dokładnie odpowiadać istniejącemu węzłowi</li>
+                        <li>Plik template zawiera komentarze (linie #) - zostaną automatycznie zignorowane</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitBulkImport()">
+                    <i class="bi bi-upload"></i> Import
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
