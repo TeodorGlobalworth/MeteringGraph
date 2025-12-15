@@ -26,7 +26,9 @@ services:
       start_period: 60s
 
   timescaledb:
-    image: timescale/timescaledb:latest-pg15
+    build:
+      context: .
+      dockerfile: Dockerfile.timescaledb
     container_name: metering_timescaledb
     ports:
       - "5432:5432"
@@ -36,7 +38,6 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-metering_pass123}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - metering_network
     restart: unless-stopped

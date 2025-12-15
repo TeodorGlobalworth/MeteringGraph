@@ -1,0 +1,4 @@
+FROM timescale/timescaledb:latest-pg15
+
+# Copy init script
+COPY init.sql /docker-entrypoint-initdb.d/init.sql
