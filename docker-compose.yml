@@ -48,7 +48,9 @@ services:
       start_period: 60s
 
   flask_app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: metering_flask
     ports:
       - "5067:5067"
@@ -63,8 +65,6 @@ services:
       - POSTGRES_DB=metering
       - POSTGRES_USER=metering_user
       - POSTGRES_PASSWORD=metering_pass123
-    volumes:
-      - .:/app
     depends_on:
       neo4j:
         condition: service_healthy
@@ -73,7 +73,6 @@ services:
     networks:
       - metering_network
     restart: unless-stopped
-    command: python run.py
 
 volumes:
   neo4j_data:
